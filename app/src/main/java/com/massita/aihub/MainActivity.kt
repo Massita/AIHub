@@ -4,6 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +32,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,11 +46,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.massita.aihub.ui.main.AiHubFeature
 import com.massita.aihub.ui.main.MainUiState
 import com.massita.aihub.ui.main.MainViewModel
+import com.massita.aihub.ui.settings.ApiKeySettingsScreen
+import com.massita.aihub.ui.settings.ApiKeySettingsViewModel
 import com.massita.aihub.ui.theme.AiHubTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModel()
+    private val settingsViewModel: ApiKeySettingsViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,10 +61,33 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val uiState by mainViewModel.uiState().collectAsStateWithLifecycle()
+            var showSettings by rememberSaveable { mutableStateOf(false) }
 
             AiHubTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    MainRoute(uiState = uiState)
+                    AnimatedContent(
+                        targetState = showSettings,
+                        transitionSpec = {
+                            if (targetState) {
+                                slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
+                            } else {
+                                slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
+                            }
+                        },
+                        label = "nav"
+                    ) { settings ->
+                        if (settings) {
+                            ApiKeySettingsScreen(
+                                viewModel = settingsViewModel,
+                                onBack = { showSettings = false }
+                            )
+                        } else {
+                            MainRoute(
+                                uiState = uiState,
+                                onConnectModel = { showSettings = true }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -62,7 +95,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun MainRoute(uiState: MainUiState) {
+private fun MainRoute(
+    uiState: MainUiState,
+    onConnectModel: () -> Unit = {}
+) {
     Scaffold { innerPadding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -79,7 +115,8 @@ private fun MainRoute(uiState: MainUiState) {
                     title = uiState.headerTitle,
                     subtitle = uiState.subtitle,
                     primaryActionLabel = uiState.primaryActionLabel,
-                    secondaryActionLabel = uiState.secondaryActionLabel
+                    secondaryActionLabel = uiState.secondaryActionLabel,
+                    onPrimaryAction = onConnectModel
                 )
             }
 
@@ -102,7 +139,8 @@ private fun HeroSection(
     title: String,
     subtitle: String,
     primaryActionLabel: String,
-    secondaryActionLabel: String
+    secondaryActionLabel: String,
+    onPrimaryAction: () -> Unit = {}
 ) {
     Card(
         shape = RoundedCornerShape(28.dp),
@@ -136,7 +174,7 @@ private fun HeroSection(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Button(onClick = {}) {
+                Button(onClick = onPrimaryAction) {
                     Text(text = primaryActionLabel)
                 }
                 OutlinedButton(onClick = {}) {

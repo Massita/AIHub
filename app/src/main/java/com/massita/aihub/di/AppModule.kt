@@ -1,7 +1,12 @@
 package com.massita.aihub.di
 
+import com.massita.aihub.data.repository.ApiKeyRepository
+import com.massita.aihub.data.repository.ApiKeyRepositoryImpl
+import com.massita.aihub.data.security.EncryptedApiKeyStorage
+import com.massita.aihub.data.security.SecureApiKeyStorage
 import com.massita.aihub.ui.main.AiHubFeature
 import com.massita.aihub.ui.main.MainViewModel
+import com.massita.aihub.ui.settings.ApiKeySettingsViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -30,5 +35,8 @@ private fun buildFeatureCatalog(): List<AiHubFeature> = listOf(
 
 val appModule = module {
     single { buildFeatureCatalog() }
+    single<SecureApiKeyStorage> { EncryptedApiKeyStorage(get()) }
+    single<ApiKeyRepository> { ApiKeyRepositoryImpl(get()) }
     viewModelOf(::MainViewModel)
+    viewModelOf(::ApiKeySettingsViewModel)
 }
