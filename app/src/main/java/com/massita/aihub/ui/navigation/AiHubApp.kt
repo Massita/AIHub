@@ -25,11 +25,14 @@ fun AiHubApp(
     ) -> Unit
 ) {
     var selectedDestination by rememberSaveable { mutableStateOf(TopLevelDestination.Chat) }
+    var isRailExpanded by rememberSaveable { mutableStateOf(false) }
 
     Row(modifier = modifier.fillMaxSize()) {
         AppNavigationRail(
             selectedDestination = selectedDestination,
-            onDestinationSelected = { selectedDestination = it }
+            onDestinationSelected = { selectedDestination = it },
+            isExpanded = isRailExpanded,
+            onToggleExpanded = { isRailExpanded = !isRailExpanded }
         )
 
         AnimatedContent(
