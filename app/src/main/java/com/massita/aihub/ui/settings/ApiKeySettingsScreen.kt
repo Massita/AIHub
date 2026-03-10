@@ -56,7 +56,8 @@ import com.massita.aihub.data.model.AiProvider
 @Composable
 fun ApiKeySettingsScreen(
     viewModel: ApiKeySettingsViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -69,6 +70,7 @@ fun ApiKeySettingsScreen(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text("API Keys") },
