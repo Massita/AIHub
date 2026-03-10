@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">AI Hub</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_browser">Browser</string>
+    <string name="nav_tasks">Tasks</string>
+    <string name="nav_configuration">Configuration</string>
 </resources>
