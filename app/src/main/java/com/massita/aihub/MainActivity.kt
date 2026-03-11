@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import com.massita.aihub.ui.browser.BrowserScreen
+import com.massita.aihub.ui.browser.BrowserViewModel
 import com.massita.aihub.ui.chat.ChatScreen
 import com.massita.aihub.ui.chat.ChatViewModel
 import com.massita.aihub.ui.navigation.AiHubApp
@@ -17,6 +19,7 @@ import com.massita.aihub.ui.theme.AiHubTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
+    private val browserViewModel: BrowserViewModel by viewModel()
     private val chatViewModel: ChatViewModel by viewModel()
     private val settingsViewModel: ApiKeySettingsViewModel by viewModel()
 
@@ -41,7 +44,10 @@ class MainActivity : ComponentActivity() {
                                 onBack = { onNavigate(TopLevelDestination.Chat) },
                                 modifier = modifier
                             )
-                            TopLevelDestination.Browser,
+                            TopLevelDestination.Browser -> BrowserScreen(
+                                viewModel = browserViewModel,
+                                modifier = modifier
+                            )
                             TopLevelDestination.Tasks -> ChatScreen(
                                 viewModel = chatViewModel,
                                 onNavigateToConfiguration = {
